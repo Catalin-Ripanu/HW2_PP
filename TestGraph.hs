@@ -4,49 +4,134 @@ module TestGraph where
 
 import TestPP
 import qualified Data.Set as S
-import StandardGraph
-import Algorithms
+import AlgebraicGraph
+import Modular
 
 
-testGraph1 :: StandardGraph Int
-testGraph1 = fromComponents [1, 2, 3, 4] [(1, 2), (1, 3)]
+testGraph1 :: AlgebraicGraph Int
+testGraph1 = Overlay
+                (Connect
+                    (Node 1)
+                    (Overlay (Node 2) (Node 3))
+                )
+                (Node 4)
 
-testGraph12 :: StandardGraph Int
-testGraph12 = fromComponents [4, 3, 3, 2, 1] [(1, 3), (1, 3), (1, 2)]
+testGraph2 :: AlgebraicGraph Int
+testGraph2 = Overlay
+                    (Connect (Node 1) (Node 2))
+                    (Overlay
+                        (Connect (Node 3) (Node 4))
+                        (Overlay
+                            (Connect (Node 4) (Node 5))
+                            (Connect (Node 5) (Node 3))
+                        )
+                    )
 
-testGraph2 :: StandardGraph Int
-testGraph2 = fromComponents [1, 2, 3, 4, 5] [(1, 2), (3, 4), (4, 5), (5, 3)]
+testGraph3 :: AlgebraicGraph Int
+testGraph3 = Overlay
+                    (Connect
+                        (Node 1)
+                        (Overlay
+                            (Node 4)
+                            (Connect (Node 2) (Node 3))
+                        )
+                    )
+                    (Connect (Node 4) (Node 1))
 
-testGraph22 :: StandardGraph Int
-testGraph22 = fromComponents [1, 2, 3, 5, 1, 4, 4] [(1, 2), (3, 4), (4, 5), (5, 3), (3, 4), (4, 5), (5, 3)]
+testGraph4 :: AlgebraicGraph Int
+testGraph4 = Overlay
+                    (Overlay 
+                        (Connect
+                            (Node 1)
+                            (Connect (Node 2) (Node 3))
+                        )
+                        (Connect
+                            (Node 3)
+                            (Connect (Node 4) (Node 5))
+                        )
+                    )
+                    (Connect (Node 5) (Node 1))
 
-testGraph3 :: StandardGraph Int
-testGraph3 = fromComponents [1, 2, 3, 4] [(1, 2), (1, 4), (4, 1), (2, 3), (1, 3)]
+testGraph5 :: AlgebraicGraph Int
+testGraph5 = Overlay
+                    (Overlay
+                        (Overlay
+                            (Connect
+                                (Node 1)
+                                (Overlay (Node 2) (Node 6))
+                            )
+                            (Overlay
+                                (Connect
+                                    (Node 6)
+                                    (Overlay (Node 3) (Node 7))
+                                )
+                                (Connect
+                                    (Overlay (Node 3) (Node 7))
+                                    (Node 5)
+                                )
+                            )
+                        )
+                        (Connect (Node 2) (Node 3))
+                    )
+                    (Node 4)
 
-testGraph32 :: StandardGraph Int
-testGraph32 = fromComponents [1, 2, 1, 2, 3, 4] [(1, 2), (1, 4), (4, 1), (1, 2), (1, 4), (2, 3), (1, 3)]
+testGraph6 :: AlgebraicGraph Int
+testGraph6 = Overlay
+                    (Overlay
+                        (Connect
+                            (Node 1)
+                            (Overlay
+                                (Node 2)
+                                (Overlay (Node 3) (Node 4))
+                            )
+                        )
+                        (Overlay
+                            (Connect (Node 2) (Node 5))
+                            (Connect (Node 3) (Node 6))
+                        )
+                    )
+                    (Overlay
+                        (Connect (Node 4) (Node 7))
+                        (Connect (Node 6) (Node 8))
+                    )
 
-testGraph4 :: StandardGraph Int
-testGraph4 = fromComponents [1, 2, 3, 4, 5] [(1, 2), (1, 3), (2, 3), (3, 4), (4, 5), (5, 1), (3, 5)]
-
-testGraph5 :: StandardGraph Int
-testGraph5 = fromComponents [1, 2, 3, 4, 5, 6, 7] [(1, 2), (2, 3), (3, 5), (1, 6), (6, 3), (6, 7), (7, 5)]
-
-testGraph6 :: StandardGraph Int
-testGraph6 = fromComponents [1, 2, 3, 4, 5, 6, 7, 8] [(1, 2), (1, 3), (1, 4), (2, 5), (3, 6), (4, 7), (6, 8)]
-
-testGraph7 :: StandardGraph Int
-testGraph7 = fromComponents [1, 2, 3, 4] [(1, 2), (1, 4), (4, 1), (2, 4), (1, 3)]
-
-testGraphConstruction :: TestData
-testGraphConstruction = tests 1 5
-    [ 
-        testCond "test graph equality 1" (testGraph1 == testGraph12),
-        testCond "test graph equality 2" (testGraph2 == testGraph22),
-        testCond "test graph equality 3" (testGraph3 == testGraph32)       
+testGraph7 :: AlgebraicGraph Int
+testGraph7 = Overlay
+                    (Connect
+                        (Node 1)
+                        (Overlay
+                            (Connect (Node 2) (Node 4))
+                            (Node 3)
+                        )
+                    )
+                    (Connect (Node 4) (Node 1))
+        
+testNodes :: TestData
+testNodes = tests 1 10
+    [
+        testVal "test nodes 1" (S.fromList [1, 2, 3, 4]) (nodes testGraph1),
+        testVal "test nodes 2" (S.fromList [1, 2, 3, 4, 5]) (nodes testGraph2),
+        testVal "test nodes 3" (S.fromList [1, 2, 3, 4]) (nodes testGraph3),
+        testVal "test nodes 4" (S.fromList [1, 2, 3, 4,5 ]) (nodes testGraph4),
+        testVal "test nodes 5" (S.fromList [1, 2, 3, 4, 5, 6, 7]) (nodes testGraph5),
+        testVal "test nodes 6" (S.fromList [1, 2, 3, 4, 5, 6, 7, 8]) (nodes testGraph6),
+        testVal "test nodes 7" (S.fromList [1, 2, 3, 4]) (nodes testGraph7)
     ]
+    
+testEdges :: TestData
+testEdges = tests 2 10
+    [
+        testVal "test edges 1" (S.fromList [(1, 2),(1, 3)]) (edges testGraph1),
+        testVal "test edges 2" (S.fromList [(1,2),(3,4),(4,5),(5,3)]) (edges testGraph2),
+        testVal "test edges 3" (S.fromList [(1,2),(1,3),(1,4),(2,3),(4,1)]) (edges testGraph3),
+        testVal "test edges 4" (S.fromList [(1,2),(1,3),(2,3),(3,4),(3,5),(4,5),(5,1)]) (edges testGraph4),
+        testVal "test edges 5" (S.fromList [(1,2),(1,6),(2,3),(3,5),(6,3),(6,7),(7,5)]) (edges testGraph5),
+        testVal "test edges 6" (S.fromList [(1,2),(1,3),(1,4),(2,5),(3,6),(4,7),(6,8)]) (edges testGraph6),
+        testVal "test edges 7" (S.fromList [(1,2),(1,3),(1,4),(2,4),(4,1)]) (edges testGraph7)
+    ]
+
 testOutNeighbors :: TestData
-testOutNeighbors = tests 2 10
+testOutNeighbors = tests 3 15
     [ 
         testVal "test outNeighbors 1" (S.fromList [2, 3]) (outNeighbors 1 testGraph1),
         testVal "test outNeighbors 2" (S.fromList []) (outNeighbors 3 testGraph1),
@@ -57,7 +142,7 @@ testOutNeighbors = tests 2 10
     ]
 
 testInNeighbors :: TestData
-testInNeighbors = tests 3 10
+testInNeighbors = tests 4 15
     [ 
         testVal "test inNeighbors 1" (S.fromList []) (inNeighbors 1 testGraph1),
         testVal "test inNeighbors 2" (S.fromList [1]) (inNeighbors 3 testGraph1),
@@ -66,133 +151,91 @@ testInNeighbors = tests 3 10
         testVal "test inNeighbors 5" (S.fromList [1, 2]) (inNeighbors 3 testGraph3),
         testVal "test inNeighbors 6" (S.fromList [5]) (inNeighbors 1 testGraph4)   
     ]
+    
+makeTestUnit :: Ord a => AlgebraicGraph a -> (S.Set a, S.Set (a, a))
+makeTestUnit g = (nodes g, edges g)
 
 testRemoveNode :: TestData
-testRemoveNode = tests 4 15
+testRemoveNode = tests 5 15
     [ 
-        testVal "test removeNode 1" res1 (removeNode 1 testGraph1),
-        testVal "test removeNode 2" res2 (removeNode 3 testGraph1),
-        testVal "test removeNode 3" res3 (removeNode 4 testGraph2),
-        testVal "test removeNode 4" res4 (removeNode 2 testGraph3),
-        testVal "test removeNode 5" res5 (removeNode 1 testGraph3),
-        testVal "test removeNode 6" res6 (removeNode 5 testGraph4)   
+        testVal "test removeNode 1" (makeTestUnit res1) (makeTestUnit (removeNode 1 testGraph1)),
+        testVal "test removeNode 2" (makeTestUnit res2) (makeTestUnit (removeNode 3 testGraph1)),
+        testVal "test removeNode 3" (makeTestUnit res3) (makeTestUnit (removeNode 4 testGraph2)),
+        testVal "test removeNode 4" (makeTestUnit res4) (makeTestUnit (removeNode 2 testGraph3)),
+        testVal "test removeNode 5" (makeTestUnit res5) (makeTestUnit (removeNode 1 testGraph3)),
+        testVal "test removeNode 6" (makeTestUnit res6) (makeTestUnit (removeNode 5 testGraph4))   
     ]
     where
-        res1 = fromComponents [2, 3, 4] []
-        res2 = fromComponents [1, 2, 4] [(1, 2)]
-        res3 = fromComponents [1, 2, 3, 5] [(1, 2), (5, 3)]
-        res4 = fromComponents [1, 3, 4] [(1, 4), (4, 1), (1, 3)]
-        res5 = fromComponents [2, 3, 4] [(2, 3)]
-        res6 = fromComponents [1, 2, 3, 4] [(1, 2), (1, 3), (2, 3), (3, 4)]
+        res1 = Overlay (Node 2) (Overlay (Node 3) (Node 4))
+        res2 = Overlay (Connect (Node 1) (Node 2)) (Node 4)
+        res3 = Overlay (Connect (Node 1) (Node 2)) (Connect (Node 5) (Node 3))
+        res4 = Overlay (Connect (Node 1) (Overlay (Node 3) (Node 4))) (Connect (Node 4) (Node 1))
+        res5 = Overlay (Connect (Node 2) (Node 3)) (Node 4)
+        res6 = Overlay (Connect (Node 1) (Connect (Node 2) (Node 3))) (Connect (Node 3) (Node 4))
 
 
 testSplitNode :: TestData
-testSplitNode = tests 5 20
+testSplitNode = tests 6 20
     [ 
-        testVal "test splitNode 1" res1 (splitNode 1 [5, 6, 7] testGraph1),
-        testVal "test splitNode 2" res2 (splitNode 4 [5, 6] testGraph1),
-        testVal "test splitNode 3" res3 (splitNode 3 [6, 7] testGraph2),
-        testVal "test splitNode 4" res4 (splitNode 2 [] testGraph3),
-        testVal "test splitNode 5" res5 (splitNode 3 [5, 6] testGraph3),
-        testVal "test splitNode 6" res6 (splitNode 5 [7] testGraph4)   
+        testVal "test splitNode 1" (makeTestUnit res1) (makeTestUnit (splitNode 1 [5, 6, 7] testGraph1)),
+        testVal "test splitNode 2" (makeTestUnit res2) (makeTestUnit(splitNode 4 [5, 6] testGraph1)),
+        testVal "test splitNode 3" (makeTestUnit res3) (makeTestUnit (splitNode 3 [6, 7] testGraph2)),
+        testVal "test splitNode 4" (makeTestUnit res4) (makeTestUnit (splitNode 2 [] testGraph3)),
+        testVal "test splitNode 5" (makeTestUnit res5) (makeTestUnit (splitNode 3 [5, 6] testGraph3)),
+        testVal "test splitNode 6" (makeTestUnit res6) (makeTestUnit (splitNode 5 [7] testGraph4))   
     ]
     where
-        res1 = fromComponents [5, 6, 7, 2, 3, 4] [(5, 2), (5, 3), (6, 2), (6, 3), (7, 2), (7, 3)]
-        res2 = fromComponents [1, 2, 3, 5, 6] [(1, 2), (1, 3)]
-        res3 = fromComponents [1, 2, 6, 7, 4, 5] [(1, 2), (6, 4), (7, 4), (4, 5), (5, 6), (5, 7)]
-        res4 = fromComponents [1, 3, 4] [(1, 4), (4, 1), (1, 3)]
-        res5 = fromComponents [1, 2, 4, 5, 6] [(1, 2), (1, 4), (4, 1), (2, 5), (2, 6), (1, 5), (1, 6)]
-        res6 = fromComponents [1, 2, 3, 4, 7] [(1, 2), (1, 3), (2, 3), (3, 4), (4, 7), (7, 1), (3, 7)]
+        res1 = Overlay (Overlay (Overlay (Connect (Node 7) (Overlay (Node 2) (Node 3))) (Connect (Node 6) (Overlay (Node 2) (Node 3)))) (Connect (Node 5) (Overlay (Node 2) (Node 3)))) (Node 4)
+        res2 = Overlay (Connect (Node 1) (Overlay (Node 2) (Node 3))) (Overlay (Node 5) (Node 6))
+        res3 = Overlay (Connect (Node 1) (Node 2)) (Overlay (Connect (Overlay (Node 6) (Node 7)) (Node 4)) (Overlay (Connect (Node 4) (Node 5)) (Connect (Node 5) (Overlay (Node 6) (Node 7)))))
+        res4 = Overlay (Connect (Node 1) (Overlay (Node 3) (Node 4))) (Connect (Node 4) (Node 1))
+        res5 = Overlay (Overlay (Connect (Connect (Node 1) (Node 2)) (Overlay (Node 5) (Node 6))) (Connect (Node 4) (Node 1))) (Connect (Node 1) (Node 4))
+        res6 = Overlay (Overlay (Connect (Node 1) (Connect (Node 2) (Node 3))) (Connect (Node 3) (Connect (Node 4) (Node 7)))) (Connect (Node 7) (Node 1))
 
 
 testMergeNodes :: TestData
-testMergeNodes = tests 6 15
+testMergeNodes = tests 7 15
     [ 
-        testVal "test mergeNodes 1" res1 (mergeNodes (\x -> elem x [2, 3]) 5 testGraph1),
-        testVal "test mergeNodes 2" res2 (mergeNodes (\x -> elem x [1, 2]) 5 testGraph1),
-        testVal "test mergeNodes 3" res3 (mergeNodes (\x -> elem x []) 7 testGraph2),
-        testVal "test mergeNodes 4" res4 (mergeNodes (\x -> elem x [1, 2, 3]) 5 testGraph3),
-        testVal "test mergeNodes 5" res5 (mergeNodes (\x -> elem x [1, 4]) 5 testGraph3),
-        testVal "test mergeNodes 6" res6 (mergeNodes (\x -> elem x [1, 2, 3]) 6 testGraph4)   
+        testVal "test mergeNodes 1" (makeTestUnit res1) (makeTestUnit (mergeNodes (\x -> elem x [2, 3]) 5 testGraph1)),
+        testVal "test mergeNodes 2" (makeTestUnit res2) (makeTestUnit (mergeNodes (\x -> elem x [1, 2]) 5 testGraph1)),
+        testVal "test mergeNodes 3" (makeTestUnit res3) (makeTestUnit (mergeNodes (\x -> elem x []) 7 testGraph2)),
+        testVal "test mergeNodes 4" (makeTestUnit res4) (makeTestUnit (mergeNodes (\x -> elem x [1, 2, 3]) 5 testGraph3)),
+        testVal "test mergeNodes 5" (makeTestUnit res5) (makeTestUnit (mergeNodes (\x -> elem x [1, 4]) 5 testGraph3)),
+        testVal "test mergeNodes 6" (makeTestUnit res6) (makeTestUnit (mergeNodes (\x -> elem x [1, 2, 3]) 6 testGraph4))   
     ]
     where
-        res1 = fromComponents [1, 4, 5] [(1,5)]
-        res2 = fromComponents [3, 4, 5] [(5,3),(5,5)]
-        res3 = fromComponents [1, 2, 3, 4, 5] [(1, 2), (3, 4), (4, 5), (5, 3)]
-        res4 = fromComponents [4,5] [(4,5),(5,4),(5,5)]
-        res5 = fromComponents [2,3,5] [(2,3),(5,2),(5,3),(5,5)]
-        res6 = fromComponents [4,5,6] [(4,5),(5,6),(6,4),(6,5),(6,6)]
+        res1 = Overlay (Connect (Node 1) (Node 5)) (Node 4)
+        res2 = Overlay (Connect (Node 5) (Overlay (Node 3) (Node 5))) (Node 4)
+        res3 = Overlay (Connect (Node 1) (Node 2)) (Overlay (Connect (Node 3) (Node 4)) (Overlay (Connect (Node 4) (Node 5)) (Connect (Node 5) (Node 3))))
+        res4 = Connect (Node 5) (Connect (Node 4) (Node 5))
+        res5 = Connect (Node 5) (Overlay (Node 5) (Connect (Node 2) (Node 3)))
+        res6 = Connect (Node 6) (Overlay (Connect (Node 4) (Node 5)) (Connect (Node 5) (Node 6)))
 
 
-testBFS :: TestData
-testBFS = tests 7 15
-    [ 
-        testVal "test bfs 1" res1 (bfs 1 testGraph1),
-        testVal "test bfs 2" res2 (bfs 2 testGraph1),
-        testVal "test bfs 3" res3 (bfs 5 testGraph2),
-        testVal "test bfs 4" res4 (bfs 4 testGraph3),
-        testVal "test bfs 5" res5 (bfs 1 testGraph4),
-        testVal "test bfs 6" res6 (bfs 1 testGraph5),
-        testVal "test bfs 7" res7 (bfs 6 testGraph5),
-        testVal "test bfs 8" res8 (bfs 1 testGraph6),
-        testVal "test bfs 9" res9 (bfs 4 testGraph6),
-        testVal "test bfs 10" res10 (bfs 1 testGraph7)
-    ]
-    where
-        res1 = [1, 2, 3]
-        res2 = [2]
-        res3 = [5, 3, 4]
-        res4 = [4, 1, 2, 3]
-        res5 = [1, 2, 3, 4, 5]
-        res6 = [1, 2, 6, 3, 7, 5]
-        res7 = [6, 3, 7, 5]
-        res8 = [1, 2, 3, 4, 5, 6, 7, 8]
-        res9 = [4, 7]
-        res10 = [1, 2, 3, 4]
-
-
-testDFS :: TestData
-testDFS = tests 8 15
-    [ 
-        testVal "test dfs 1" res1 (dfs 1 testGraph1),
-        testVal "test dfs 2" res2 (dfs 2 testGraph1),
-        testVal "test dfs 3" res3 (dfs 5 testGraph2),
-        testVal "test dfs 4" res4 (dfs 4 testGraph3),
-        testVal "test dfs 5" res5 (dfs 1 testGraph4),
-        testVal "test dfs 6" res6 (dfs 1 testGraph5),
-        testVal "test dfs 7" res7 (dfs 6 testGraph5),
-        testVal "test dfs 8" res8 (dfs 1 testGraph6),
-        testVal "test dfs 9" res9 (dfs 4 testGraph6),
-        testVal "test dfs 10" res10 (dfs 1 testGraph7)
-    ]
-    where
-        res1 = [1, 2, 3]
-        res2 = [2]
-        res3 = [5, 3, 4]
-        res4 = [4, 1, 2, 3]
-        res5 = [1, 2, 3, 4, 5]
-        res6 = [1, 2, 3, 5, 6, 7]
-        res7 = [6, 3, 5, 7]
-        res8 = [1, 2, 5, 3, 6, 8, 4, 7]
-        res9 = [4, 7]
-        res10 = [1, 2, 4, 3]
-
-testCountIntermediate :: TestData
-testCountIntermediate = tests 9 15
-    [ 
-        testVal "test countIntermediate 1" (Just (1, 1)) (countIntermediate 1 3 testGraph1),
-        testVal "test countIntermediate 2" Nothing (countIntermediate 2 4 testGraph1),
-        testVal "test countIntermediate 3" (Just (1, 1)) (countIntermediate 3 5 testGraph2),
-        testVal "test countIntermediate 4" (Just (1, 1)) (countIntermediate 1 3 testGraph3),
-        testVal "test countIntermediate 5" Nothing (countIntermediate 2 1 testGraph3),
-        testVal "test countIntermediate 6" (Just (3, 3)) (countIntermediate 4 3 testGraph4),
-        testVal "test countIntermediate 7" (Just (1, 3)) (countIntermediate 1 6 testGraph5),
-        testVal "test countIntermediate 8" (Just (2, 1)) (countIntermediate 6 5 testGraph5),
-        testVal "test countIntermediate 9" (Just (6, 4)) (countIntermediate 1 8 testGraph6),
-        testVal "test countIntermediate 10" Nothing (countIntermediate 2 7 testGraph6)
+testMapSingle :: TestData
+testMapSingle = tests 8 10
+    [
+        testVal "test mapSingle 1" [[0,2,3,4,5],[1,0,3,4,5],[1,2,0,4,5],[1,2,3,0,5],[1,2,3,4,0]] (mapSingle (*0) [1,2,3,4,5]),
+        testVal "test mapSingle 2" [[51]] (mapSingle (+50) [1]),
+        testVal "test mapSingle 3" [["not lucky","ion","carusel","germania","zar","strings"],
+                                    ["ana","not lucky","carusel","germania","zar","strings"],
+                                    ["ana","ion","lucky","germania","zar","strings"],
+                                    ["ana","ion","carusel","not lucky","zar","strings"],
+                                    ["ana","ion","carusel","germania","not lucky","strings"],
+                                    ["ana","ion","carusel","germania","zar","lucky"]] (mapSingle (\x -> if length x == 7 then "lucky" else "not lucky") ["ana", "ion", "carusel", "germania", "zar", "strings"]),
+        testVal "testMapSingle 4"  ["ttring","suring","stsing","strjng","striog","strinh"] (mapSingle (toEnum . (+1) . fromEnum) "string"),
+        testVal "testMapSingle 5" [] (mapSingle (+10) [])
     ]
 
-checkAll = vmCheck $ standardGraph ++ algorithms
+testPartitions :: TestData
+testPartitions = tests 9 10
+    [
+        testSet "test partitions 1" [[[1]]] (partitions [1]),
+        testSet "test partitions 2" [[[1],[2]],[[1,2]]] (partitions [1,2]),
+        testSet "test partitions 3" [[[1],[2],[3]],[[1,2],[3]],[[2],[1,3]],[[1],[2,3]],[[1,2,3]]] (partitions [1,2,3])
+    ]
+
+checkAll = vmCheck $ algebraicGraph ++ modular
     where
-        standardGraph  = [testGraphConstruction, testOutNeighbors, testInNeighbors, testRemoveNode, testSplitNode, testMergeNodes]
-        algorithms     = [testBFS, testDFS, testCountIntermediate]
+        algebraicGraph = [testNodes, testEdges, testOutNeighbors, testInNeighbors, testRemoveNode, testSplitNode, testMergeNodes]
+        modular = [testMapSingle, testPartitions]
