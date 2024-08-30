@@ -1,7 +1,7 @@
 module TestPP 
   ( quickCheck, vmCheck, vmCheckIO
-  , testCond, testVal, testManually, testSet
-  , testCondW, testValW, testManuallyW, testSetW
+  , testCond, testVal, testManually, testSet, testWith
+  , testCondW, testValW, testManuallyW, testSetW, testWithW
   , test, test_, tests, tests_
   , TestData, TestCase
   ) where
@@ -257,7 +257,7 @@ testWithW :: (Show a1, Show a)
             -> a1           -- ^ the given value
             -> TestCase     -- ^ the resulting 'TestCase' instance
 testWithW descr vname opname points ve op vg = buildTest descr points err (ve `op` vg)
-  where err = (vname ++ " data " ++ show vg ++ " nu " ++ opname ++ " cu " ++ vname ++ " asteptata " ++ show ve)
+  where err = (vname ++ " data " ++ show vg ++ " nu " ++ opname ++ " in " ++ vname ++ " asteptata " ++ show ve)
 
 -- |The same as 'testWithW', but with a unitary weight.
 testWith :: (Show a1, Show a)
